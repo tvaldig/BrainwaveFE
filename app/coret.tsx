@@ -5,7 +5,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import 'react-native-reanimated';
-
 import { useColorScheme } from '@/hooks/useColorScheme';
 
 import SplashScreenComponent from '../components/SplashScreen'; 
@@ -21,20 +20,25 @@ export default function RootLayout() {
   const [isAppLoaded, setIsAppLoaded] = useState(false);
   const router = useRouter();
 
-
+  // Hide the splash screen only when the app is fully loaded
   useEffect(() => {
     if (loaded) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync(); // Hide the splash screen once fonts are loaded
       setIsAppLoaded(true);
-    } 
+    }
   }, [loaded]);
 
+  // Navigate to the login screen once the app is loaded
   useEffect(() => {
     if (isAppLoaded) {
       router.replace("/(login)"); // Redirect to login
     }
-    
   }, [isAppLoaded]);
+
+  // Show splash screen while assets are loading
+  if (!loaded) {
+    return <SplashScreenComponent />;
+  }
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

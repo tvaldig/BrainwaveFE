@@ -5,7 +5,7 @@ export default function SplashScreen() {
   return (
     <LottieView
       source={require('../assets/animations/SplashScreen.json')}
-      style={{ width: '100%', height: '100%' }}
+      style={{ width: '100%', height: '100%', flex:1 }}
       autoPlay
       loop
     />

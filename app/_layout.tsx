@@ -8,6 +8,7 @@ import { View } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import SplashScreenComponent from '../components/SplashScreen';
 
+
 // Keep the native splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 

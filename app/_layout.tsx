@@ -8,7 +8,6 @@ import { View } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import SplashScreenComponent from '../components/SplashScreen';
 
-// Keep the native splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -31,13 +30,8 @@ export default function RootLayout() {
     const prepare = async () => {
       try {
         if (loaded) {
-          // Hide the native splash screen
           await SplashScreen.hideAsync();
-          
-          // Show Lottie animation for 7.5 seconds
           await new Promise(resolve => setTimeout(resolve, 7500));
-          
-          // Hide Lottie and proceed to app
           setShowLottie(false);
           setIsAppReady(true);
         }
@@ -51,8 +45,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (isAppReady) {
-      console.log('App ready, navigating to login');
-      router.replace('/(login)');
+      router.replace('/(auth)/login'); // Updated path
     }
   }, [isAppReady]);
 
@@ -62,10 +55,10 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(login)/index" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(auth)/login" />
+        <Stack.Screen name="(auth)/register" />
+        <Stack.Screen name="(tabs)" />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
 import Footer from '../../components/Footer';
 import Header from '@/components/Header';
-
 import HomeScreen from '.';
+import FAQScreen from './faq'; 
+import QuestionScreen from './question'; 
+import MaterialScreen from './material'; 
 
 type TabLayoutProps = {
   children: React.ReactNode;
@@ -15,13 +17,15 @@ export default function TabLayout({ children }: TabLayoutProps) {
   const renderContent = () => {
     switch (activeTab) {
       case 'Home':
-        return <HomeScreen/>;
-      case 'Shop':
-        return <Text style={styles.placeholderText}>Welcome to Shop!</Text>;
-      case 'Search':
-        return <Text style={styles.placeholderText}>Search for something!</Text>;
+        return <HomeScreen />;
+      case 'Tracker':
+        return <Text style={styles.placeholderText}>Welcome to Tracker!</Text>;
+      case 'Evaluation':
+        return <FAQScreen />;
       case 'Profile':
         return <Text style={styles.placeholderText}>Your Profile here!</Text>;
+      case 'FAQ': 
+        return <FAQScreen />;
       default:
         return <Text style={styles.placeholderText}>Invalid Tab</Text>;
     }
@@ -29,7 +33,7 @@ export default function TabLayout({ children }: TabLayoutProps) {
 
   return (
     <View style={styles.container}>
-      <Header/>
+      <Header />
       <View style={styles.content}>{renderContent()}</View>
       <Footer activeTab={activeTab} setActiveTab={setActiveTab} />
     </View>

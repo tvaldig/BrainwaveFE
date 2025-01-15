@@ -95,7 +95,7 @@ export function VerticalCard({
       <>
         <Image source={image} style={styles.fullImage} resizeMode="cover" />
         <LinearGradient
-          colors={['transparent', 'rgba(0,0,0,0.8)']}
+          colors={['transparent', '#CFCFCD']}
           style={styles.gradient}
         />
         <View style={styles.overlayContent}>
@@ -178,6 +178,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     gap: 8,
+   
     marginBottom: 4,
   },
   titleWithBookmark: {
@@ -185,6 +186,7 @@ const styles = StyleSheet.create({
   },
   footerContent: {
     padding: 12,
+    backgroundColor:'#CFCFCD',
   },
   overlayContent: {
     position: 'absolute',
@@ -195,6 +197,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
+    color: "563540",
   },
   overlayTitle: {
     color: 'white',
@@ -204,14 +207,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 4,
     opacity: 0.8,
+    color: "563540",
   },
   overlayText: {
     color: 'white',
     textAlign: 'center',
     opacity: 0.9,
+    
   },
   footer: {
     fontSize: 12,
     opacity: 0.6,
+    color: "563540",
   },
 });

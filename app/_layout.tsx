@@ -4,12 +4,14 @@ import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import SplashScreenComponent from '../components/SplashScreen';
+import { Platform } from 'react-native';
 
-SplashScreen.preventAutoHideAsync();
 
+if (Platform.OS !== 'web') {
+  SplashScreen.preventAutoHideAsync();
+}
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
@@ -45,7 +47,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (isAppReady) {
-      router.replace('/(auth)/login'); // Updated path
+      router.replace('/');
     }
   }, [isAppReady]);
 
@@ -59,6 +61,7 @@ export default function RootLayout() {
         <Stack.Screen name="(auth)/login" />
         <Stack.Screen name="(auth)/register" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(dashboard)" />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>

@@ -1,32 +1,65 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TextInput, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, Image, TextInput, SafeAreaView, Platform } from 'react-native';
 
 export default function Header() {
+  const isWeb = Platform.OS === 'web';
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        <View style={styles.profileContainer}>
-          <Image
-            source={require('../assets/images/ProfileTest.png')} 
-            style={styles.profileImage}
-          />
-          <View style={styles.textContainer}>
-            <Text style={styles.statusText}>Online</Text>
-            <Text style={styles.nameText}>Timotius Vivaldi</Text>
-          </View>
-        </View>
+        {isWeb ? (
+          // Layout for Web
+          <View style={styles.webContainer}>
+            <View style={styles.profileWebContainer}>
+              <Image
+                source={require('../assets/images/ProfileTest.png')}
+                style={styles.profileImage}
+              />
+              <View style={styles.textContainer}>
+                <Text style={styles.statusText}>Online</Text>
+                <Text style={styles.nameText}>Timotius Vivaldi</Text>
+              </View>
+            </View>
 
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Search ..."
-            placeholderTextColor="#B8A8B2"
-          />
-          <Image
-            source={require('../assets/images/SearchBar.png')} 
-            style={styles.searchIcon}
-          />
-        </View>
+            <View style={styles.searchContainer}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search ..."
+                placeholderTextColor="#B8A8B2"
+              />
+              <Image
+                source={require('../assets/images/SearchBar.png')}
+                style={styles.searchIcon}
+              />
+            </View>
+          </View>
+        ) : (
+          // Layout for Mobile
+          <>
+            <View style={styles.profileContainer}>
+              <Image
+                source={require('../assets/images/ProfileTest.png')}
+                style={styles.profileImage}
+              />
+              <View style={styles.textContainer}>
+                <Text style={styles.statusText}>Online</Text>
+                <Text style={styles.nameText}>Timotius Vivaldi</Text>
+              </View>
+            </View>
+
+            <View style={styles.searchContainer}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search ..."
+                placeholderTextColor="#B8A8B2"
+              />
+              <Image
+                source={require('../assets/images/SearchBar.png')}
+                style={styles.searchIcon}
+              />
+            </View>
+          </>
+        )}
       </View>
     </SafeAreaView>
   );
@@ -34,18 +67,27 @@ export default function Header() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#563540', 
+    backgroundColor: '#563540',
   },
   container: {
-    backgroundColor: '#563540', 
+    backgroundColor: '#563540',
     padding: 20,
     borderBottomLeftRadius: 16,
     borderBottomRightRadius: 16,
   },
+  webContainer: {
+    flexDirection: 'row', // Row layout for web
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  profileWebContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   profileContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom:20,
   },
   profileImage: {
     width: 50,
@@ -59,7 +101,7 @@ const styles = StyleSheet.create({
   },
   statusText: {
     fontSize: 12,
-    color: '#00B386', 
+    color: '#00B386',
     fontWeight: 'bold',
   },
   nameText: {
@@ -70,15 +112,16 @@ const styles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#D7DEDC', 
+    backgroundColor: '#D7DEDC',
     borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 5,
+    width: Platform.OS === 'web' ? '40%' : 'auto', // Adjust width for web
   },
   searchInput: {
     flex: 1,
     fontSize: 14,
-    color: '#6B4A5E', 
+    color: '#6B4A5E',
   },
   searchIcon: {
     width: 20,

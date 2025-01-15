@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-export default function Footer() {
-  const [activeTab, setActiveTab] = useState('Home'); 
+type FooterProps = {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+};
 
+export default function Footer({ activeTab, setActiveTab }: FooterProps) {
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('Home')}>
@@ -71,7 +74,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     height: 80,
-    backgroundColor: '#D7DEDC', 
+    backgroundColor: '#D7DEDC',
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
   },
@@ -85,7 +88,7 @@ const styles = StyleSheet.create({
   tabText: {
     marginTop: 4,
     fontSize: 12,
-    color: '#6B4A5E', 
+    color: '#6B4A5E',
   },
   activeTabText: {
     color: '#4B244A',

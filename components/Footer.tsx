@@ -13,8 +13,8 @@ export default function Footer({ activeTab, setActiveTab }: FooterProps) {
         <Image
           source={
             activeTab === 'Home'
-              ? require('../assets/images/HomeClick.png')
-              : require('../assets/images/Home.png')
+              ? require('../assets/images/HomeFooterClick.png')
+              : require('../assets/images/HomeFooter.png')
           }
           style={styles.icon}
         />
@@ -23,33 +23,33 @@ export default function Footer({ activeTab, setActiveTab }: FooterProps) {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('Shop')}>
+      {/* <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('Tracker')}>
         <Image
           source={
-            activeTab === 'Shop'
-              ? require('../assets/images/ShopClick.png')
-              : require('../assets/images/Shop.png')
+            activeTab === 'Tracker'
+              ? require('../assets/images/TrackerFooterClick.png')
+              : require('../assets/images/TrackerFooter.png')
           }
           style={styles.icon}
         />
-        <Text style={[styles.tabText, activeTab === 'Shop' && styles.activeTabText]}>
-          Shop
+        <Text style={[styles.tabText, activeTab === 'Tracker' && styles.activeTabText]}>
+          Tracker
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('Search')}>
+      <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('Evaluation')}>
         <Image
           source={
-            activeTab === 'Search'
-              ? require('../assets/images/SearchClick.png')
-              : require('../assets/images/Search.png')
+            activeTab === 'Evaluation'
+              ? require('../assets/images/EvaluationFooterClick.png')
+              : require('../assets/images/EvaluationFooter.png')
           }
           style={styles.icon}
         />
-        <Text style={[styles.tabText, activeTab === 'Search' && styles.activeTabText]}>
-          Search
+        <Text style={[styles.tabText, activeTab === 'Evaluation' && styles.activeTabText]}>
+          Evaluation
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('Profile')}>
         <Image

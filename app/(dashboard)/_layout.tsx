@@ -6,6 +6,7 @@ import HomeScreen from '.';
 import FAQScreen from './faq'; 
 import QuestionScreen from './question'; 
 import MaterialScreen from './material'; 
+import TrackerPage from './tracker'; 
 
 type TabLayoutProps = {
   children: React.ReactNode;
@@ -21,7 +22,7 @@ export default function TabLayout({ children }: TabLayoutProps) {
       case 'Tracker':
         return <Text style={styles.placeholderText}>Welcome to Tracker!</Text>;
       case 'Evaluation':
-        return <FAQScreen />;
+        return <TrackerPage />;
       case 'Profile':
         return <Text style={styles.placeholderText}>Your Profile here!</Text>;
       case 'FAQ': 

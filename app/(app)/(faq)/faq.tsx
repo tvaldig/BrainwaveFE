@@ -35,7 +35,7 @@ export default function FAQScreen() {
         >
           <View style={styles.faqHeader}>
             <Image
-              source={require('../../assets/images/FaqQuestion.png')} 
+              source={require('../../../assets/images/FaqQuestion.png')} 
               style={styles.icon}
             />
             <Text style={styles.question}>{item.question}</Text>

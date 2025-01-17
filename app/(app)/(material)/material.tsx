@@ -1,10 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { CustomButton } from '@/components/CustomButton'; // Assuming your CustomButton is imported correctly
 
 export default function MaterialPage() {
+  const router = useRouter();
+
+  const handleStartQuiz = () => {
+    router.push('/question');
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-
       <Text style={styles.quizTitle}>Quiz: Modul 1 Introduction to Python</Text>
 
       <View style={styles.quizContainer}>
@@ -29,14 +36,14 @@ export default function MaterialPage() {
           <View style={styles.statRow}>
             <View style={styles.stat}>
               <Image
-                source={require('../../assets/images/Moduls.png')}
+                source={require('../../../assets/images/Moduls.png')}
                 style={styles.statIcon}
               />
               <Text style={styles.statText}>Moduls: 8</Text>
             </View>
             <View style={styles.stat}>
               <Image
-                source={require('../../assets/images/Rating.png')}
+                source={require('../../../assets/images/Rating.png')}
                 style={styles.statIcon}
               />
               <Text style={styles.statText}>Rating: 4.9</Text>
@@ -45,14 +52,14 @@ export default function MaterialPage() {
           <View style={styles.statRow}>
             <View style={styles.stat}>
               <Image
-                source={require('../../assets/images/Viewers.png')}
+                source={require('../../../assets/images/Viewers.png')}
                 style={styles.statIcon}
               />
               <Text style={styles.statText}>Viewers: 12.2K</Text>
             </View>
             <View style={styles.stat}>
               <Image
-                source={require('../../assets/images/TotalQuestions.png')}
+                source={require('../../../assets/images/TotalQuestions.png')}
                 style={styles.statIcon}
               />
               <Text style={styles.statText}>Total Questions: 1000</Text>
@@ -89,7 +96,15 @@ export default function MaterialPage() {
         <Text style={styles.sectionText}>
           Panduan ini juga menjelaskan cara membuat skrip Python sederhana, menyimpannya, dan menjalankannya melalui terminal.
         </Text>
+        <CustomButton
+          label="Start Quiz"
+          variant="text"
+          onPress={handleStartQuiz}
+          style={styles.startQuizButton}
+        />
       </View>
+
+ 
     </ScrollView>
   );
 }
@@ -99,6 +114,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 16,
+    position: 'relative', // Allow absolute positioning within the ScrollView
   },
   contentContainer: {
     paddingBottom: 40,
@@ -178,5 +194,18 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#563540',
     marginBottom: 12,
+  },
+  startQuizButtonContainer: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    width: '80%',
+    zIndex: 1, // Ensures button is above the content
+  },
+  startQuizButton: {
+    backgroundColor: '#5A2A3E',
+    borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
   },
 });

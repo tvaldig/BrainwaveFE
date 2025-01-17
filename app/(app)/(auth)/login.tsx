@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   View, 
   Text, 
@@ -20,12 +20,17 @@ import { HelloWave } from '@/components/HelloWave';
 import { ThemedText } from '@/components/ThemedText';
 import { router } from 'expo-router';
 import authStyles from './authStyles';
+import { useSession } from '@/context/authContext';
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function LoginScreen() {
+  const { signIn } = useSession();
   const screenHeight = Dimensions.get('window').height;
-  
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const rectangleTranslateY = useSharedValue(screenHeight);
   const illustrationTranslateY = useSharedValue(screenHeight);
 
@@ -48,6 +53,13 @@ export default function LoginScreen() {
     transform: [{ translateY: illustrationTranslateY.value }],
   }));
 
+  const handleLogin = () => {
+    if (email && password) {
+      signIn(email, password);
+      router.replace('/');
+    }
+  };
+
   return (
     <LinearGradient
       colors={['#EEDFF0', '#89818A']}
@@ -63,20 +75,14 @@ export default function LoginScreen() {
             <HelloWave />
           </Animated.View>
           
-          <AnimatedView style={[
-            authStyles.illustrationContainer,
-            illustrationAnimatedStyle,
-          ]}>
+          <AnimatedView style={[authStyles.illustrationContainer, illustrationAnimatedStyle]}>
             <Image
-              source={require('../../assets/images/login-illustration.png')} 
+              source={require('../../../assets/images/login-illustration.png')} 
               style={authStyles.illustration}
             />
           </AnimatedView>
 
-          <AnimatedView style={[
-            authStyles.rectangle,
-            rectangleAnimatedStyle,
-          ]}>
+          <AnimatedView style={[authStyles.rectangle, rectangleAnimatedStyle]}>
             <ScrollView 
               style={authStyles.scrollView}
               contentContainerStyle={authStyles.scrollViewContent}
@@ -85,18 +91,22 @@ export default function LoginScreen() {
               <View style={authStyles.formContainer}>
                 <TextInput 
                   style={authStyles.input} 
-                  placeholder="Username" 
+                  placeholder="Email" 
                   placeholderTextColor="#aaa" 
+                  value={email} 
+                  onChangeText={setEmail} 
                 />
                 <TextInput
                   style={authStyles.input}
                   placeholder="Password"
                   placeholderTextColor="#aaa"
                   secureTextEntry
+                  value={password}
+                  onChangeText={setPassword}
                 />
                 <TouchableOpacity 
                   style={authStyles.button} 
-                  onPress={() => alert('Login pressed')}
+                  onPress={handleLogin}
                 >
                   <Text style={authStyles.buttonText}>Login</Text>
                 </TouchableOpacity>
@@ -108,7 +118,7 @@ export default function LoginScreen() {
                   onPress={() => alert('Google Login pressed')}
                 >
                   <Image
-                    source={require('../../assets/images/google.png')}
+                    source={require('../../../assets/images/google.png')}
                     style={authStyles.googleIcon}
                   />
                   <Text style={authStyles.googleButtonText}>Login with Google</Text>
@@ -120,7 +130,7 @@ export default function LoginScreen() {
                   </Text>
                   <TouchableOpacity 
                     style={authStyles.switchAuthButton}
-                    onPress={() => router.push("/(auth)/register")}
+                    onPress={() => router.push("/(app)/(auth)/register")}
                   >
                     <Text style={authStyles.switchAuthButtonText}>Register</Text>
                   </TouchableOpacity>

@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 
 import { VerticalCard } from '@/components/VerticalCard';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 
 type LeaderboardItem = {
   id: number;
@@ -25,7 +27,7 @@ const isWeb = Platform.OS === 'web';
 const leaderboardData: LeaderboardItem[] = [
   { id: 1, name: 'Alice', score: 1500 },
   { id: 2, name: 'Bob', score: 1400 },
-  { id: 3, name: 'Charlie', score: 1300 },
+  { id: 3, name: 'Kunanskrt', score: 1300 },
 ];
 
 const modulesData = [
@@ -34,25 +36,29 @@ const modulesData = [
     title: 'Computational',
     subtitle: '8 Modules',
     footer: 'Study Time: 05:02:00',
-    image: require('../../assets/images/cardimg.png'),
+    image: require('../../../assets/images/cardimg.png'),
+    isBookmarked: false,
   },
   {
     id: 2,
     title: 'Physics',
     subtitle: '10 Modules',
     footer: 'Study Time: 05:02:00',
-    image: require('../../assets/images/cardimg.png'),
+    image: require('../../../assets/images/cardimg.png'),
+    isBookmarked: false,
   },
   {
     id: 3,
     title: 'Mathematics',
     subtitle: '6 Modules',
     footer: 'Study Time: 03:45:00',
-    image: require('../../assets/images/cardimg.png'),
+    image: require('../../../assets/images/cardimg.png'),
+    isBookmarked: false,
   },
 ];
 
 export default function HomeScreen() {
+  const router = useRouter();
   const renderLeaderboardItem = ({ item }: { item: LeaderboardItem }) => (
     <View style={styles.leaderboardItem}>
       <Text style={styles.leaderboardText}>
@@ -73,27 +79,27 @@ export default function HomeScreen() {
           {/* Card Section */}
           <View style={styles.webCardContainer}>
             <Image
-              source={require('../../assets/images/Berpikir.png')}
+              source={require('../../../assets/images/Berpikir.png')}
               style={styles.webCardImage}
             />
           </View>
 
           {/* Icons Section */}
           <View style={styles.webIconContainer}>
-            <TouchableOpacity style={styles.webIconButton}>
-              <Image source={require('../../assets/images/course.png')} style={styles.webIconImage} />
+            <TouchableOpacity style={styles.webIconButton} onPress={() => router.replace('/course')}>
+              <Image source={require('../../../assets/images/course.png')} style={styles.webIconImage} />
               <Text style={styles.webIconLabel}>Course</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.webIconButton}>
-              <Image source={require('../../assets/images/tracker.png')} style={styles.webIconImage} />
+            <TouchableOpacity style={styles.webIconButton} onPress={() => router.replace('/tracker')}>
+              <Image source={require('../../../assets/images/tracker.png')} style={styles.webIconImage} />
               <Text style={styles.webIconLabel}>Tracker</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.webIconButton}>
-              <Image source={require('../../assets/images/evaluation.png')} style={styles.webIconImage} />
+            <TouchableOpacity style={styles.webIconButton} onPress={() => router.replace('/evaluation')}>
+              <Image source={require('../../../assets/images/evaluation.png')} style={styles.webIconImage} />
               <Text style={styles.webIconLabel}>Evaluation</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.webIconButton}>
-              <Image source={require('../../assets/images/faq.png')} style={styles.webIconImage} />
+            <TouchableOpacity style={styles.webIconButton}  onPress={() => router.replace('/faq')}>
+              <Image source={require('../../../assets/images/faq.png')} style={styles.webIconImage} />
               <Text style={styles.webIconLabel}>FAQ</Text>
             </TouchableOpacity>
           </View>
@@ -103,27 +109,27 @@ export default function HomeScreen() {
           {/* Card Section */}
           <View style={styles.cardContainer}>
             <Image
-              source={require('../../assets/images/Berpikir.png')}
+              source={require('../../../assets/images/Berpikir.png')}
               style={styles.cardImage}
             />
           </View>
 
           {/* Icons Section */}
           <View style={styles.iconContainer}>
-            <TouchableOpacity style={styles.iconButton}>
-              <Image source={require('../../assets/images/course.png')} style={styles.iconImage} />
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.replace('/course')}>
+              <Image source={require('../../../assets/images/course.png')} style={styles.iconImage}  />
               <Text style={styles.iconLabel}>Course</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-              <Image source={require('../../assets/images/tracker.png')} style={styles.iconImage} />
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.replace('/tracker')}>
+              <Image source={require('../../../assets/images/tracker.png')} style={styles.iconImage} />
               <Text style={styles.iconLabel}>Tracker</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-              <Image source={require('../../assets/images/evaluation.png')} style={styles.iconImage} />
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.replace('/evaluation')}>
+              <Image source={require('../../../assets/images/evaluation.png')} style={styles.iconImage} />
               <Text style={styles.iconLabel}>Evaluation</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.iconButton}>
-              <Image source={require('../../assets/images/faq.png')} style={styles.iconImage} />
+            <TouchableOpacity style={styles.iconButton} onPress={() => router.replace('/faq')}>
+              <Image source={require('../../../assets/images/faq.png')} style={styles.iconImage} />
               <Text style={styles.iconLabel}>FAQ</Text>
             </TouchableOpacity>
           </View>
@@ -142,22 +148,19 @@ export default function HomeScreen() {
       </View>
       <Text style={styles.HeadingTitle}>Available Courses</Text>
       <View style={styles.modulesContainer}>
-        <FlatList
-          data={modulesData}
-          renderItem={({ item }) => (
-            <VerticalCard
-              title={item.title}
-              subtitle={item.subtitle}
-              footer={item.footer}
-              image={item.image}
-              style={styles.cardStyle}
-            />
-          )}
-          keyExtractor={(item) => item.id.toString()}
-          numColumns={SCREEN_WIDTH > 600 ? (isWeb ? 3 : 2) : 1}
-          columnWrapperStyle={SCREEN_WIDTH > 600 ? styles.row : null}
-        />
-      </View>
+  {modulesData.map((item) => (
+    <VerticalCard
+      key={item.id}
+      title={item.title}
+      subtitle={item.subtitle}
+      footer={item.footer}
+      image={item.image}
+      style={styles.cardStyle}
+      isBookmarked={item.isBookmarked}
+      onPress={() => router.replace('/course')}
+    />
+  ))}
+</View>
     </ScrollView>
   );
 }
@@ -203,19 +206,16 @@ const styles = StyleSheet.create({
     aspectRatio: 1,    
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,   
+    marginBottom: 0,   
     backgroundColor: 'transparent', 
     borderRadius: 10,    
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 4,
     elevation: 2,
   },
   webIconImage: {
     width: 64,
     height: 64,
     marginBottom: 8,
+    resizeMode:'contain'
   },
   webIconLabel: {
     fontSize: 14,
@@ -293,6 +293,7 @@ const styles = StyleSheet.create({
   iconImage: {
     width: SCREEN_WIDTH * 0.15,
     height: SCREEN_WIDTH * 0.15,
+    resizeMode:'contain'
   },
   iconLabel: {
     marginTop: 8,

@@ -115,13 +115,13 @@ export default function TrackerPage() {
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButtonBox}>
           <View style={styles.iconButton}>
-            <Image source={require('../../assets/images/Dates.png')} style={styles.icon} />
+            <Image source={require('../../../assets/images/Dates.png')} style={styles.icon} />
             <Text style={styles.iconText}>Dates</Text>
           </View>
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButtonBox}>
           <View style={styles.iconButton}>
-            <Image source={require('../../assets/images/Filter.png')} style={styles.icon} />
+            <Image source={require('../../../assets/images/Filter.png')} style={styles.icon} />
             <Text style={styles.iconText}>Filter</Text>
           </View>
         </TouchableOpacity>
@@ -138,11 +138,11 @@ export default function TrackerPage() {
           <View style={styles.detailsSection}>
             <Text style={styles.taskTitle}>Computational Thinking - Introduction to Python</Text>
             <View style={styles.infoRow}>
-              <Image source={require('../../assets/images/Time.png')} style={styles.infoIcon} />
+              <Image source={require('../../../assets/images/Time.png')} style={styles.infoIcon} />
               <Text style={styles.infoText}>16.00 - 20.00 WIB</Text>
             </View>
             <View style={styles.infoRow}>
-              <Image source={require('../../assets/images/TotalModuls.png')} style={styles.infoIcon} />
+              <Image source={require('../../../assets/images/TotalModuls.png')} style={styles.infoIcon} />
               <Text style={styles.infoText}>5 Moduls</Text>
             </View>
           </View>
@@ -151,7 +151,7 @@ export default function TrackerPage() {
               <Text style={styles.statusText}>{index % 2 === 0 ? 'Done' : 'Incomplete'}</Text>
             </View>
             <TouchableOpacity style={styles.studyButton}>
-              <Image source={require('../../assets/images/StudyNow.png')} style={styles.studyIcon} />
+              <Image source={require('../../../assets/images/StudyNow.png')} style={styles.studyIcon} />
               <Text style={styles.studyText}>Study Now</Text>
             </TouchableOpacity>
           </View>

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import Footer from '../../components/Footer';
+import Footer from '../../../components/Footer';
 import Header from '@/components/Header';
 import HomeScreen from '.';
-import QuestionScreen from './question'; 
+//import QuestionScreen from './question'; 
+import ProfileScreen from './profile';
 
 type TabLayoutProps = {
   children: React.ReactNode;
@@ -17,7 +18,7 @@ export default function TabLayout({ children }: TabLayoutProps) {
       case 'Home':
         return <HomeScreen />;
       case 'Profile':
-        return <Text style={styles.placeholderText}>Your Profile here!</Text>;
+        return <ProfileScreen/>;
       default:
         return <Text style={styles.placeholderText}>Invalid Tab</Text>;
     }

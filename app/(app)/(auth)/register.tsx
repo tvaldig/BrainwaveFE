@@ -18,6 +18,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import  authStyles  from './authStyles'
 import { router } from 'expo-router';
+import { useSession } from '@/context/authContext';
 interface FormErrors {
     fullName?: string;
     email?: string;
@@ -28,6 +29,7 @@ interface FormErrors {
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function RegisterScreen() {
+  const { signUp } = useSession();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -75,8 +77,8 @@ export default function RegisterScreen() {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      // Handle successful registration
-      alert('Registration successful!');
+      signUp(formData.fullName, formData.email, formData.password);
+       router.replace("/(app)/(auth)/login");
     }
   };
 
@@ -100,7 +102,7 @@ export default function RegisterScreen() {
             illustrationAnimatedStyle,
           ]}>
             <Image
-              source={require('../../assets/images/login-illustration.png')} 
+              source={require('../../../assets/images/login-illustration.png')} 
               style={authStyles.illustration}
             />
           </AnimatedView>
@@ -185,7 +187,7 @@ export default function RegisterScreen() {
                   </Text>
                   <TouchableOpacity 
                     style={authStyles.switchAuthButton}
-                    onPress={() => router.push("/(auth)/login")}
+                    onPress={() => router.push("/(app)/(auth)/login")}
                   >
                     <Text style={authStyles.switchAuthButtonText}>Login</Text>
                   </TouchableOpacity>

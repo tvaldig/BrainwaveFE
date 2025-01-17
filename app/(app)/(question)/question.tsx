@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Modal } from 'react-native';
 import { API_URL } from '@/constants/api';
 import axios from 'axios';
 import { useSession } from '@/context/authContext';
+
 // Define interfaces for the expected data
 interface Quiz {
   title: string;
@@ -17,20 +18,25 @@ interface Question {
 }
 
 export default function QuestionScreen() {
-  const {session} = useSession();
+  const { session } = useSession();
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [answer, setAnswer] = useState('');
   const [quizData, setQuizData] = useState<Quiz | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Modal States
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [scoreMessage, setScoreMessage] = useState('');
+
   useEffect(() => {
     // Fetch quiz data from the API
     const fetchQuiz = async () => {
       try {
         const response = await axios.get(`${API_URL}/subjects/6789dbb5b7f5f1e540e337be`);
-        const data = await response.data
-        const firstQuiz: Quiz = data.materials[0].quiz
+        const data = await response.data;
+        const firstQuiz: Quiz = data.materials[0].quiz;
         setQuizData(firstQuiz);
       } catch (err) {
         setError('Failed to load quiz data.');
@@ -54,42 +60,54 @@ export default function QuestionScreen() {
   const handleCheck = async () => {
     console.log('Answer submitted:', answer);
     console.log('Correct answer:', quizData?.questions[activeQuestion].answer);
-  
+
     try {
-      // Extract the necessary data
       const question = quizData?.questions[activeQuestion];
-      const userId = session?.userId 
-      const subjectId = '6789dbb5b7f5f1e540e337be'
-      const materialIndex = 0; 
-      const questionIndex = activeQuestion; 
-      
-      // Prepare the data to send
+      const userId = session?.userId;
+      const subjectId = '6789dbb5b7f5f1e540e337be';
+      const materialIndex = 0;
+      const questionIndex = activeQuestion;
+
       const data = {
         userAnswer: answer,
         userId: userId,
       };
-  
-      // Send the POST request
+
       const response = await axios.post(
         `${API_URL}/subjects/${subjectId}/materials/${materialIndex}/quiz/questions/${questionIndex}/check`,
         data,
         {
-            headers: {
-                Authorization: `Bearer ${session?.token}`,
-              },
-          }
+          headers: {
+            Authorization: `Bearer ${session?.token}`,
+          },
+        }
       );
-  
-      // Handle the response (success or error)
+
       if (response.data.status === 'success') {
-        console.log('Correct/Incorrect answer:', response.data.message);
-        // Optionally handle updating UI based on score and feedback
+        const message = response.data.message;
+        const isAnswerCorrect = message.includes('Correct answer');
+        setIsCorrect(isAnswerCorrect);
+
+        // Extract score from message if it's a correct answer
+        if (isAnswerCorrect) {
+          const scoreMatch = message.match(/Score: (\d+)/);
+          if (scoreMatch) {
+            setScoreMessage(`Your score: ${scoreMatch[1]}`);
+          }
+        }
+
+        setIsModalVisible(true);
       } else {
         console.error('Failed to check the answer:', response.data.message);
       }
     } catch (error) {
       console.error('Error while checking answer:');
     }
+  };
+
+  const closeModal = () => {
+    setIsModalVisible(false);
+    setAnswer(''); // Clear answer after closing modal
   };
 
   if (loading) {
@@ -118,18 +136,10 @@ export default function QuestionScreen() {
         {quizData?.questions.map((_, index) => (
           <TouchableOpacity
             key={index}
-            style={[
-              styles.questionNumber,
-              activeQuestion === index && styles.activeQuestionNumber,
-            ]}
+            style={[styles.questionNumber, activeQuestion === index && styles.activeQuestionNumber]}
             onPress={() => handleQuestionClick(index)}
           >
-            <Text
-              style={[
-                styles.questionNumberText,
-                activeQuestion === index && styles.activeQuestionNumberText,
-              ]}
-            >
+            <Text style={[styles.questionNumberText, activeQuestion === index && styles.activeQuestionNumberText]}>
               {index + 1}
             </Text>
           </TouchableOpacity>
@@ -169,6 +179,26 @@ export default function QuestionScreen() {
           <Text style={styles.checkButtonText}>Check</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal for Answer Result */}
+      <Modal
+        visible={isModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalText}>
+              {isCorrect ? 'Correct Answer!' : 'Incorrect Answer!'}
+            </Text>
+            {isCorrect && scoreMessage && <Text style={styles.modalText}>{scoreMessage}</Text>}
+            <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+              <Text style={styles.modalButtonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
@@ -274,6 +304,35 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   checkButtonText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 8,
+    width: 250,
+    alignItems: 'center',
+  },
+  modalText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  modalButton: {
+    backgroundColor: '#563540',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+  modalButtonText: {
     fontSize: 14,
     fontWeight: 'bold',
     color: '#FFFFFF',

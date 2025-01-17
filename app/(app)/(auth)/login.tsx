@@ -7,6 +7,7 @@ import {
   Image, 
   Dimensions,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,14 +26,22 @@ import { useSession } from '@/context/authContext';
 const AnimatedView = Animated.createAnimatedComponent(View);
 
 export default function LoginScreen() {
-  const { signIn } = useSession();
+  const { signIn, session, isLoading } = useSession();
   const screenHeight = Dimensions.get('window').height;
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const rectangleTranslateY = useSharedValue(screenHeight);
   const illustrationTranslateY = useSharedValue(screenHeight);
+
+  // Check session on mount
+  useEffect(() => {
+    if (session) {
+      router.replace('/');
+    }
+  }, [session]);
 
   useEffect(() => {
     rectangleTranslateY.value = withSpring(0, {
@@ -53,10 +62,21 @@ export default function LoginScreen() {
     transform: [{ translateY: illustrationTranslateY.value }],
   }));
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (email && password) {
-      signIn(email, password);
-      router.replace('/');
+      try {
+        await signIn(email, password);
+        if (session) {
+          router.replace('/');
+        } else {
+          setErrorMessage('Wrong email or password');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        setErrorMessage('Something went wrong. Please try again.');
+      }
+    } else {
+      setErrorMessage('Please enter your email and password.');
     }
   };
 
@@ -104,11 +124,17 @@ export default function LoginScreen() {
                   value={password}
                   onChangeText={setPassword}
                 />
+                {errorMessage ? (
+                  <Text style={authStyles.errorText}>{errorMessage}</Text>
+                ) : null}
                 <TouchableOpacity 
                   style={authStyles.button} 
                   onPress={handleLogin}
+                  disabled={isLoading}
                 >
-                  <Text style={authStyles.buttonText}>Login</Text>
+                  <Text style={authStyles.buttonText}>
+                    {isLoading ? 'Loading...' : 'Login'}
+                  </Text>
                 </TouchableOpacity>
                 
                 <Text style={authStyles.orText}>Or</Text>

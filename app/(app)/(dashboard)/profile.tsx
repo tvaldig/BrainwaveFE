@@ -1,21 +1,49 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { CustomButton } from '@/components/CustomButton';
 import { useSession } from '@/context/authContext';
 import { useRouter } from 'expo-router';
+import axios from 'axios';
+import { API_URL } from '@/constants/api';
 
 export default function ProfileScreen() {
   const { session, signOut } = useSession();
   const router = useRouter();
+
+  // State variables to hold user data
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/user/me`, {
+          headers: {
+            Authorization: `Bearer ${session?.token}`,
+          },
+        });
+
+        if (response.data.status === 'success') {
+          const { name, email } = response.data.data;
+          setName(name);
+          setEmail(email);
+        } else {
+          console.error('Failed to fetch user data');
+        }
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    if (session?.token) {
+      fetchUserData();
+    }
+  }, [session?.token]);
+
   const handleLogout = () => {
     signOut();
-    router.replace("/(app)/(auth)/login")
+    router.replace("/(app)/(auth)/login");
   };
-
-  // Log the token to the console every time the ProfileScreen component is mounted
-  useEffect(() => {
-    console.log('Session Token:', session ? session : 'No session token found');
-  }, [session]); // The useEffect hook will be triggered every time the session changes
 
   return (
     <View style={styles.container}>
@@ -28,8 +56,8 @@ export default function ProfileScreen() {
       </View>
 
       {/* User Info */}
-      <Text style={styles.username}>John Doe</Text>
-      <Text style={styles.email}>john.doe@example.com</Text>
+      <Text style={styles.username}>{name || 'Loading...'}</Text>
+      <Text style={styles.email}>{email || 'Loading...'}</Text>
 
       {/* Logout Button */}
       <View style={styles.logoutButtonContainer}>
@@ -55,7 +83,7 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     marginBottom: 16,
-    borderRadius: 75, // For circular profile image
+    borderRadius: 75, 
     overflow: 'hidden',
     width: 100,
     height: 100,

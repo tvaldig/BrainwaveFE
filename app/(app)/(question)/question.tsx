@@ -1,143 +1,189 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
+import { API_URL } from '@/constants/api';
+import axios from 'axios';
+import { useSession } from '@/context/authContext';
+// Define interfaces for the expected data
+interface Quiz {
+  title: string;
+  description: string;
+  questions: Question[];
+}
+
+interface Question {
+  question: string;
+  options: string[];
+  answer: string;
+}
 
 export default function QuestionScreen() {
-  const [activeQuestion, setActiveQuestion] = useState(1);
+  const {session} = useSession();
+  const [activeQuestion, setActiveQuestion] = useState(0);
   const [answer, setAnswer] = useState('');
+  const [quizData, setQuizData] = useState<Quiz | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const questions = [...Array(10).keys()].map((i) => i + 1);
+  useEffect(() => {
+    // Fetch quiz data from the API
+    const fetchQuiz = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/subjects/6789dbb5b7f5f1e540e337be`);
+        const data = await response.data
+        const firstQuiz: Quiz = data.materials[0].quiz
+        setQuizData(firstQuiz);
+      } catch (err) {
+        setError('Failed to load quiz data.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleQuestionClick = (questionNumber: number) => {
-    setActiveQuestion(questionNumber);
+    fetchQuiz();
+  }, []);
+
+  const handleQuestionClick = (questionIndex: number) => {
+    setActiveQuestion(questionIndex);
+    setAnswer('');
   };
 
   const handleRetry = () => {
     setAnswer('');
   };
 
-  const handleCheck = () => {
+  const handleCheck = async () => {
     console.log('Answer submitted:', answer);
+    console.log('Correct answer:', quizData?.questions[activeQuestion].answer);
+  
+    try {
+      // Extract the necessary data
+      const question = quizData?.questions[activeQuestion];
+      const userId = session?.userId 
+      const subjectId = '6789dbb5b7f5f1e540e337be'
+      const materialIndex = 0; 
+      const questionIndex = activeQuestion; 
+      
+      // Prepare the data to send
+      const data = {
+        userAnswer: answer,
+        userId: userId,
+      };
+  
+      // Send the POST request
+      const response = await axios.post(
+        `${API_URL}/subjects/${subjectId}/materials/${materialIndex}/quiz/questions/${questionIndex}/check`,
+        data,
+        {
+            headers: {
+                Authorization: `Bearer ${session?.token}`,
+              },
+          }
+      );
+  
+      // Handle the response (success or error)
+      if (response.data.status === 'success') {
+        console.log('Correct/Incorrect answer:', response.data.message);
+        // Optionally handle updating UI based on score and feedback
+      } else {
+        console.error('Failed to check the answer:', response.data.message);
+      }
+    } catch (error) {
+      console.error('Error while checking answer:');
+    }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#563540" />
+        <Text>Loading Quiz...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.loaderContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
+      <Text style={styles.quizTitle}>{quizData?.title}</Text>
+      <Text style={styles.quizDescription}>{quizData?.description}</Text>
 
-      <Text style={styles.quizTitle}>Quiz 1 : Python Introduction</Text>
-
-      <View style={styles.combinedSection}>
-        <Text style={styles.sectionTitle}>Question Numbers</Text>
-        <View style={styles.combinedContainer}>
-          <View style={styles.questionNumbersRow}>
-            {questions.slice(0, 5).map((number) => (
-              <TouchableOpacity
-                key={number}
-                style={[
-                  styles.questionNumber,
-                  activeQuestion === number && styles.activeQuestionNumber,
-                ]}
-                onPress={() => handleQuestionClick(number)}
-              >
-                <Text
-                  style={[
-                    styles.questionNumberText,
-                    activeQuestion === number && styles.activeQuestionNumberText,
-                  ]}
-                >
-                  {number}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-          <View style={styles.questionNumbersRow}>
-            {questions.slice(5, 10).map((number) => (
-              <TouchableOpacity
-                key={number}
-                style={[
-                  styles.questionNumber,
-                  activeQuestion === number && styles.activeQuestionNumber,
-                ]}
-                onPress={() => handleQuestionClick(number)}
-              >
-                <Text
-                  style={[
-                    styles.questionNumberText,
-                    activeQuestion === number && styles.activeQuestionNumberText,
-                  ]}
-                >
-                  {number}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          <Text style={styles.sectionTitle}>Exam Info</Text>
-          <View style={styles.examInfoContainer}>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Server Time    :</Text>
-              <Text style={styles.value}>12:32:00</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Course             :</Text>
-              <Text style={styles.value}>Python Introduction</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Exam Type      :</Text>
-              <Text style={styles.value}>Quiz</Text>
-            </View>
-          </View>
-        </View>
+      <View style={styles.questionNumbersRow}>
+        {quizData?.questions.map((_, index) => (
+          <TouchableOpacity
+            key={index}
+            style={[
+              styles.questionNumber,
+              activeQuestion === index && styles.activeQuestionNumber,
+            ]}
+            onPress={() => handleQuestionClick(index)}
+          >
+            <Text
+              style={[
+                styles.questionNumberText,
+                activeQuestion === index && styles.activeQuestionNumberText,
+              ]}
+            >
+              {index + 1}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
-      <View style={styles.calculatorContainer}>
-        <Text style={styles.calculatorTitle}>My Calculator</Text>
-        <Text style={styles.calculatorInfo}>
-          Time limit per test: <Text style={styles.bold}>1 second</Text>
-        </Text>
-        <Text style={styles.calculatorInfo}>
-          Memory limit per test: <Text style={styles.bold}>64 megabytes</Text>
-        </Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Question {activeQuestion + 1}</Text>
+        <Text style={styles.text}>{quizData?.questions[activeQuestion].question}</Text>
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Question</Text>
-          <Text style={styles.text}>Buatlah sebuah program yang menerima tiga masukan: angka pertama, operator aritmatika, dan angka kedua. Program tersebut harus menghitung dan menampilkan hasil operasi berdasarkan masukan yang diberikan.</Text>
-        </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Options</Text>
+        {quizData?.questions[activeQuestion].options.map((option, idx) => (
+          <Text key={idx} style={styles.text}>
+            {idx + 1}. {option}
+          </Text>
+        ))}
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Input</Text>
-          <Text style={styles.text}>1{'\n'}+{'\n'}2</Text>
-        </View>
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Answer</Text>
+        <TextInput
+          style={styles.textInput}
+          placeholder="Enter your answer here..."
+          placeholderTextColor="#A3A3A3"
+          value={answer}
+          onChangeText={setAnswer}
+        />
+      </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Output</Text>
-          <Text style={styles.text}>3</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Answer</Text>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Paste your code here..."
-            placeholderTextColor="#A3A3A3"
-            multiline
-            value={answer}
-            onChangeText={setAnswer}
-          />
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
-            <Text style={styles.retryButtonText}>Retry</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.checkButton} onPress={handleCheck}>
-            <Text style={styles.checkButtonText}>Check</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.retryButton} onPress={handleRetry}>
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.checkButton} onPress={handleCheck}>
+          <Text style={styles.checkButtonText}>Check</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
@@ -147,24 +193,19 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   quizTitle: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     color: '#563540',
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  combinedSection: {
-    backgroundColor: '#CFCFCD',
-    borderRadius: 10,
-    padding: 16,
+  quizDescription: {
+    fontSize: 16,
+    color: '#6D6A6A',
     marginBottom: 16,
-  },
-  combinedContainer: {
-    flexDirection: 'column',
-    gap: 12,
+    fontStyle: 'italic',
   },
   questionNumbersRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginBottom: 8,
   },
   questionNumber: {
@@ -185,52 +226,11 @@ const styles = StyleSheet.create({
   activeQuestionNumberText: {
     color: '#fff',
   },
-  examInfoContainer: {
-    backgroundColor: '#B8A8AC',
-    padding: 12,
-    borderRadius: 8,
-  },
-  infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 4,
-  },
-  label: {
-    fontWeight: 'bold',
-    color: '#563540',
-    fontSize: 14,
-  },
-  value: {
-    color: '#563540',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  calculatorContainer: {
-    backgroundColor: '#CFCFCD',
-    borderRadius: 10,
-    padding: 16,
-    marginBottom: 16,
-  },
-  calculatorTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#563540',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  calculatorInfo: {
-    fontSize: 14,
-    color: '#563540',
-    textAlign: 'center',
-  },
-  bold: {
-    fontWeight: 'bold',
-  },
   section: {
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#563540',
     marginBottom: 4,

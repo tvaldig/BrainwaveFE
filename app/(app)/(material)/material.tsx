@@ -1,34 +1,80 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
-import { CustomButton } from '@/components/CustomButton'; // Assuming your CustomButton is imported correctly
+import { CustomButton } from '@/components/CustomButton';
+import { API_URL } from '@/constants/api';
+import axios from 'axios';
+interface Material {
+  title: string;
+  duration: string;
+  content: string;
+  description: string;
+  _id: string;
+}
+
+interface SubjectData {
+  _id: string;
+  name: string;
+  totalModules: number;
+  estimatedTime: string;
+  description: string;
+  duration: string;
+  viewers: number;
+  rating: number;
+  totalQuestions: number;
+  materials: Material[];
+}
 
 export default function MaterialPage() {
   const router = useRouter();
+  const [materialData, setMaterialData] = useState<SubjectData | null>(null);
+
+ 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/subjects/6789dbb5b7f5f1e540e337be`);
+        const data: SubjectData = await response.data
+        setMaterialData(data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleStartQuiz = () => {
     router.push('/question');
   };
 
+  if (!materialData) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  const firstMaterial = materialData.materials[0];
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
-      <Text style={styles.quizTitle}>Quiz: Modul 1 Introduction to Python</Text>
+      <Text style={styles.quizTitle}>{materialData.name}</Text>
 
       <View style={styles.quizContainer}>
         <View style={styles.infoSection}>
           <View style={styles.infoRow}>
             <Text style={styles.label}>Title:</Text>
-            <Text style={styles.infoValue}>Lorem ipsum dolor</Text>
+            <Text style={styles.infoValue}>{materialData.name}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.label}>Duration:</Text>
-            <Text style={styles.infoValue}>23 Days</Text>
+            <Text style={styles.infoValue}>{materialData.estimatedTime}</Text>
           </View>
           <View style={styles.infoRow}>
             <Text style={styles.label}>Description:</Text>
-            <Text style={styles.infoValue}>
-              Lorem ipsum dolor sit amet consectetur. Leo est molestie.
-            </Text>
+            <Text style={styles.infoValue}>{materialData.description}</Text>
           </View>
           <View style={styles.separator} />
         </View>
@@ -39,14 +85,14 @@ export default function MaterialPage() {
                 source={require('../../../assets/images/Moduls.png')}
                 style={styles.statIcon}
               />
-              <Text style={styles.statText}>Moduls: 8</Text>
+              <Text style={styles.statText}>Modules: {materialData.totalModules}</Text>
             </View>
             <View style={styles.stat}>
               <Image
                 source={require('../../../assets/images/Rating.png')}
                 style={styles.statIcon}
               />
-              <Text style={styles.statText}>Rating: 4.9</Text>
+              <Text style={styles.statText}>Rating: {materialData.rating}</Text>
             </View>
           </View>
           <View style={styles.statRow}>
@@ -55,47 +101,26 @@ export default function MaterialPage() {
                 source={require('../../../assets/images/Viewers.png')}
                 style={styles.statIcon}
               />
-              <Text style={styles.statText}>Viewers: 12.2K</Text>
+              <Text style={styles.statText}>Viewers: {materialData.viewers}</Text>
             </View>
             <View style={styles.stat}>
               <Image
                 source={require('../../../assets/images/TotalQuestions.png')}
                 style={styles.statIcon}
               />
-              <Text style={styles.statText}>Total Questions: 1000</Text>
+              <Text style={styles.statText}>
+                Total Questions: {materialData.totalQuestions}
+              </Text>
             </View>
           </View>
         </View>
       </View>
 
       <View style={styles.pythonSection}>
-        <Text style={styles.sectionTitle}>Apa itu Python?</Text>
-        <Text style={styles.sectionText}>
-          Python adalah bahasa pemrograman tingkat tinggi yang mudah dipelajari dan fleksibel, digunakan
-          dalam banyak bidang, termasuk web, IoT, game, dan aplikasi desktop. Python cocok bagi pemula
-          karena struktur sintaksnya sederhana.
-        </Text>
-        
-        <Text style={styles.sectionTitle}>Kenapa Belajar Python?</Text>
-        <Text style={styles.sectionText}>
-          Python terkenal karena kemudahan dan keefektifannya. Banyak perusahaan besar menggunakannya,
-          dan bahasanya sangat sederhana, memungkinkan pemula cepat memahami cara kerjanya.
-        </Text>
+        <Text style={styles.sectionTitle}>{firstMaterial.title}</Text>
+        <Text style={styles.sectionText}>{firstMaterial.description}</Text>
+        <Text style={styles.sectionText}>{firstMaterial.content}</Text>
 
-        <Text style={styles.sectionTitle}>Persiapan Alat</Text>
-        <Text style={styles.sectionText}>
-          Alat utama yang diperlukan adalah interpreter Python dan text editor atau IDE. Artikel ini memberikan instruksi instalasi Python untuk pengguna Linux dan Windows, serta pilihan untuk menggunakan versi 2 atau 3.
-        </Text>
-
-        <Text style={styles.sectionTitle}>Mode Interaktif Python</Text>
-        <Text style={styles.sectionText}>
-          Mode interaktif (REPL) memungkinkan pengguna untuk menulis dan menjalankan kode secara langsung. Mode ini memfasilitasi percobaan, uji coba fungsi, dan eksplorasi modul. Dengan bantuan fungsi dir() dan help(), pengguna dapat menjelajahi berbagai modul dan fungsinya, seperti modul math.
-        </Text>
-
-        <Text style={styles.sectionTitle}>Menulis Skrip Python</Text>
-        <Text style={styles.sectionText}>
-          Panduan ini juga menjelaskan cara membuat skrip Python sederhana, menyimpannya, dan menjalankannya melalui terminal.
-        </Text>
         <CustomButton
           label="Start Quiz"
           variant="text"
@@ -103,8 +128,6 @@ export default function MaterialPage() {
           style={styles.startQuizButton}
         />
       </View>
-
- 
     </ScrollView>
   );
 }
@@ -114,7 +137,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
     padding: 16,
-    position: 'relative', // Allow absolute positioning within the ScrollView
   },
   contentContainer: {
     paddingBottom: 40,
@@ -194,13 +216,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#563540',
     marginBottom: 12,
-  },
-  startQuizButtonContainer: {
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
-    width: '80%',
-    zIndex: 1, // Ensures button is above the content
   },
   startQuizButton: {
     backgroundColor: '#5A2A3E',

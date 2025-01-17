@@ -1,16 +1,27 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, Dimensions } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
 import { LineChart } from "react-native-chart-kit";
-import Svg, { Circle, Path, G } from "react-native-svg";
+import Svg, { Circle, Path } from "react-native-svg";
+import { useStorageState } from "@/context/useStorageState"; // Import your useStorageState hook
+import { API_URL } from "@/constants/api";
+import axios from "axios";
+import { useSession } from "@/context/authContext";
 
+// Interfaces
 interface StatCard {
   title: string;
   value: number | string;
   change: string;
-  color?: string;
 }
 
-interface ChartData {
+interface ChartDataPoint {
   date: string;
   current: number;
   previous: number;
@@ -23,94 +34,96 @@ interface TaskStat {
 }
 
 export default function EvaluationScreen() {
-  const statCards: StatCard[] = [
-    {
-      title: "Total Moduls",
-      value: 12,
-      change: "+10% than last month",
-    },
-    {
-      title: "Average Grade",
-      value: 87.5,
-      change: "+5% than last month",
-    },
-    {
-      title: "Total Correct",
-      value: 87,
-      change: "+15% than last month",
-    },
-    {
-      title: "Average Module",
-      value: "22 Moduls/month",
-      change: "+10% than last month",
-    },
-  ];
+  const {session} = useSession();
+  const [statCards, setStatCards] = useState<StatCard[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>("");
+  const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
+  const [taskStats, setTaskStats] = useState<TaskStat[]>([]);
 
-  const chartData: ChartData[] = [
-    { date: "Jun 12", current: 110, previous: 90 },
-    { date: "Jun 13", current: 85, previous: 95 },
-    { date: "Jun 14", current: 80, previous: 45 },
-    { date: "Jun 15", current: 105, previous: 80 },
-  ];
+  useEffect(() => {
+    const fetchProgress = async () => {
+      if (!session) return; // Wait until userId is available
 
-  const taskStats: TaskStat[] = [
-    { label: "Correct Answer", value: 87, color: "#6C2E75" },
-    { label: "Wrong Answer", value: 12, color: "#9B51E0" },
-    { label: "Not Answered", value: 4, color: "#D5B7E3" },
-  ];
+      try {
+      
+        const response = await axios.get(`${API_URL}/progress/${session?.userId}`);
+        const result = response.data;
+        console.log(result);
+
+        if (result.status === "success") {
+          const { totalModules, averageGrade, totalCorrect, averageModule } = result.data;
+
+          // Set stats cards with fetched data
+          setStatCards([
+            { title: "Total Modules", value: totalModules, change: "+10% than last month" },
+            { title: "Average Grade", value: averageGrade, change: "+5% than last month" },
+            { title: "Total Correct", value: totalCorrect, change: "+15% than last month" },
+            { title: "Average Module", value: averageModule, change: "+10% than last month" },
+          ]);
+
+          // Set chart data
+          setChartData([
+            { date: "Jun 12", current: 110, previous: 90 },
+            { date: "Jun 13", current: 85, previous: 95 },
+            { date: "Jun 14", current: 80, previous: 45 },
+            { date: "Jun 15", current: 105, previous: 80 },
+          ]);
+
+          // Set task statistics
+          setTaskStats([
+            { label: "Correct Answer", value: 2, color: "#6C2E75" },
+            { label: "Wrong Answer", value: 0, color: "#9B51E0" },
+            { label: "Not Answered", value: 0, color: "#D5B7E3" },
+          ]);
+        } else {
+          throw new Error(result.message || "Failed to fetch data");
+        }
+      } catch (err) {
+        setError("An error occurred while fetching progress");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProgress();
+  }, []); // Trigger when userIdData is updated
 
   const renderDonutChart = () => {
-    const size = 120;
-    const strokeWidth = 20;
-    const radius = (size - strokeWidth) / 2;
-    const center = size / 2;
-    
-    let startAngle = 0;
-    const total = taskStats.reduce((acc, stat) => acc + stat.value, 0);
-
     return (
-      <Svg height={size} width={size}>
-        <G transform={`translate(${center},${center})`}>
-          {taskStats.map((stat, index) => {
-            const percentage = stat.value / total;
-            const angle = percentage * 360;
-            const largeArcFlag = angle > 180 ? 1 : 0;
-            
-            // Calculate coordinates
-            const x1 = radius * Math.cos((startAngle - 90) * Math.PI / 180);
-            const y1 = radius * Math.sin((startAngle - 90) * Math.PI / 180);
-            const x2 = radius * Math.cos((startAngle + angle - 90) * Math.PI / 180);
-            const y2 = radius * Math.sin((startAngle + angle - 90) * Math.PI / 180);
-
-            const path = `
-              M ${x1} ${y1}
-              A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}
-            `;
-
-            const arc = (
-              <Path
-                key={index}
-                d={path}
-                fill="none"
-                stroke={stat.color}
-                strokeWidth={strokeWidth}
-              />
-            );
-
-            startAngle += angle;
-            return arc;
-          })}
-          <Circle r={radius - strokeWidth / 2} fill="white" />
-
-        </G>
+      <Svg height="100" width="100" viewBox="0 0 100 100">
+        <Circle cx="50" cy="50" r="40" stroke="#6C5CE7" strokeWidth="10" fill="none" />
+        <Path
+          d="M50 10 A40 40 0 1 1 90 50"
+          fill="none"
+          stroke="#A8A5CE"
+          strokeWidth="10"
+        />
       </Svg>
     );
   };
 
+  if (loading || !session) {
+    return (
+      <View>
+        <ActivityIndicator size="large" color="#6C5CE7" />
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View>
+        <Text>Error: {error}</Text>
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>Evaluation & Progress Report</Text>
-      
+
       {/* Stats Grid */}
       <View style={styles.statsGrid}>
         {statCards.map((stat, index) => (
@@ -135,24 +148,24 @@ export default function EvaluationScreen() {
 
         <LineChart
           data={{
-            labels: chartData.map(data => data.date),
+            labels: chartData.map((data) => data.date),
             datasets: [
               {
-                data: chartData.map(data => data.current),
-                color: () => '#6C5CE7',
+                data: chartData.map((data) => data.current),
+                color: () => "#6C5CE7",
               },
               {
-                data: chartData.map(data => data.previous),
-                color: () => '#A8A5CE',
+                data: chartData.map((data) => data.previous),
+                color: () => "#A8A5CE",
               },
             ],
           }}
-          width={Dimensions.get('window').width - 40}
+          width={Dimensions.get("window").width - 40}
           height={220}
           chartConfig={{
-            backgroundColor: '#ffffff',
-            backgroundGradientFrom: '#ffffff',
-            backgroundGradientTo: '#ffffff',
+            backgroundColor: "#ffffff",
+            backgroundGradientFrom: "#ffffff",
+            backgroundGradientTo: "#ffffff",
             decimalPlaces: 0,
             color: (opacity = 1) => `rgba(108, 92, 231, ${opacity})`,
             style: {
@@ -164,19 +177,19 @@ export default function EvaluationScreen() {
         />
       </View>
 
-      {/* Bottom Cards Container */}
+      {/* Task and Computational Cards */}
       <View style={styles.bottomCardsContainer}>
-        {/* Tasks Card */}
+        {/* Task Card */}
         <View style={styles.taskCard}>
           <Text style={styles.cardTitle}>Tasks</Text>
           <View style={styles.taskContent}>
-            <View style={styles.donutChart}>
-              {renderDonutChart()}
-            </View>
+            <View style={styles.donutChart}>{renderDonutChart()}</View>
             <View style={styles.taskStats}>
               {taskStats.map((stat, index) => (
                 <View key={index} style={styles.taskStatRow}>
-                  <View style={[styles.taskStatDot, { backgroundColor: stat.color }]} />
+                  <View
+                    style={[styles.taskStatDot, { backgroundColor: stat.color }]}
+                  />
                   <Text style={styles.taskStatLabel}>{stat.label}</Text>
                   <Text style={styles.taskStatValue}>{stat.value} Questions</Text>
                 </View>
@@ -184,13 +197,11 @@ export default function EvaluationScreen() {
             </View>
           </View>
         </View>
-
-        {/* Computational Card */}
         <View style={styles.computationalCard}>
           <Text style={styles.cardTitle}>Computational</Text>
           <View style={styles.moduleInfo}>
-            <Text style={styles.moduleTitle}>21 Moduls Left</Text>
-            <Text style={styles.moduleSubtitle}>70% from last month</Text>
+            <Text style={styles.moduleTitle}>0 Moduls Left</Text>
+            <Text style={styles.moduleSubtitle}>0% from last month</Text>
           </View>
           <View style={styles.progressBars}>
             {[0.8, 0.6, 0.4].map((progress, index) => (

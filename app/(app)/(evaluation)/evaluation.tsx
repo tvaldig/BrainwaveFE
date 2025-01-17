@@ -52,14 +52,14 @@ export default function EvaluationScreen() {
         console.log(result);
 
         if (result.status === "success") {
-          const { totalModules, averageGrade, totalCorrect, averageModule } = result.data;
+          const { totalModules, averageGrade, totalCorrectAnswers, totalWrongAnswers } = result.data;
 
           // Set stats cards with fetched data
           setStatCards([
-            { title: "Total Modules", value: totalModules, change: "+10% than last month" },
-            { title: "Average Grade", value: averageGrade, change: "+5% than last month" },
-            { title: "Total Correct", value: totalCorrect, change: "+15% than last month" },
-            { title: "Average Module", value: averageModule, change: "+10% than last month" },
+            { title: "Total Modules", value: totalModules, change: "+0% than last month" },
+            { title: "Average Grade", value: averageGrade, change: "+0% than last month" },
+            { title: "Total Correct", value: totalCorrectAnswers, change: "+0% than last month" },
+            { title: "Total Incorrect", value: totalWrongAnswers, change: "+0% than last month" },
           ]);
 
           // Set chart data
@@ -72,8 +72,8 @@ export default function EvaluationScreen() {
 
           // Set task statistics
           setTaskStats([
-            { label: "Correct Answer", value: 2, color: "#6C2E75" },
-            { label: "Wrong Answer", value: 0, color: "#9B51E0" },
+            { label: "Correct Answer", value: totalCorrectAnswers, color: "#6C2E75" },
+            { label: "Wrong Answer", value:  totalWrongAnswers, color: "#9B51E0" },
             { label: "Not Answered", value: 0, color: "#D5B7E3" },
           ]);
         } else {
